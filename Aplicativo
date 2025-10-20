@@ -1,0 +1,424 @@
+import tkinter as tk
+from tkinter import ttk, messagebox, scrolledtext
+import random
+from datetime import datetime
+
+class BioSeekerApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Bio Seeker - Sistema de Restauração Ambiental")
+        self.root.geometry("1000x700")
+        self.root.configure(bg='#f0f7e8')
+        
+        # Dados simulados
+        self.locais = [
+            {"id": 1, "nome": "Parque Central", "tipo": "Área Urbana", "status": "Necessita Reflorestamento", "data": "15/03/2024"},
+            {"id": 2, "nome": "Rio das Pedras", "tipo": "Corpo Hídrico", "status": "Contaminação", "data": "22/03/2024"},
+            {"id": 3, "nome": "Serra Verde", "tipo": "Área de Preservação", "status": "Queimada Recente", "data": "05/04/2024"}
+        ]
+        
+        self.tutoriais = [
+            {"titulo": "Como plantar árvores nativas", "categoria": "Reflorestamento"},
+            {"titulo": "Técnicas de controle de erosão", "categoria": "Conservação do Solo"},
+            {"titulo": "Manejo de áreas degradadas", "categoria": "Recuperação"},
+            {"titulo": "Criação de composteira doméstica", "categoria": "Sustentabilidade"}
+        ]
+        
+        self.setup_ui()
+    
+    def setup_ui(self):
+        # Cabeçalho
+        header_frame = tk.Frame(self.root, bg='#2e7d32', height=80)
+        header_frame.pack(fill='x', padx=10, pady=10)
+        header_frame.pack_propagate(False)
+        
+        title_label = tk.Label(header_frame, text="Bio Seeker", font=('Arial', 24, 'bold'), 
+                              fg='white', bg='#2e7d32')
+        title_label.pack(pady=20)
+        
+        subtitle_label = tk.Label(header_frame, text="Sistema de Restauração Ambiental Inteligente", 
+                                 font=('Arial', 12), fg='#e8f5e9', bg='#2e7d32')
+        subtitle_label.pack()
+        
+        # Abas principais
+        notebook = ttk.Notebook(self.root)
+        notebook.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # Aba 1: Dashboard
+        self.create_dashboard_tab(notebook)
+        
+        # Aba 2: Registrar Locais
+        self.create_register_tab(notebook)
+        
+        # Aba 3: Locais Registrados
+        self.create_locations_tab(notebook)
+        
+        # Aba 4: Tutoriais
+        self.create_tutorials_tab(notebook)
+        
+        # Aba 5: Assistente IA
+        self.create_ai_assistant_tab(notebook)
+    
+    def create_dashboard_tab(self, notebook):
+        dashboard_frame = ttk.Frame(notebook)
+        notebook.add(dashboard_frame, text="Dashboard")
+        
+        # Estatísticas
+        stats_frame = tk.Frame(dashboard_frame, bg='#e8f5e9', relief='ridge', bd=2)
+        stats_frame.pack(fill='x', padx=10, pady=10)
+        
+        stats_title = tk.Label(stats_frame, text="Estatísticas do Sistema", 
+                              font=('Arial', 16, 'bold'), bg='#e8f5e9')
+        stats_title.pack(pady=10)
+        
+        stats_grid = tk.Frame(stats_frame, bg='#e8f5e9')
+        stats_grid.pack(pady=10)
+        
+        stats_data = [
+            ("Locais Registrados", "24", "#4caf50"),
+            ("Em Andamento", "12", "#ff9800"),
+            ("Concluídos", "8", "#2196f3"),
+            ("Necessitam Atenção", "4", "#f44336")
+        ]
+        
+        for i, (label, value, color) in enumerate(stats_data):
+            stat_frame = tk.Frame(stats_grid, bg=color, width=150, height=80)
+            stat_frame.grid(row=0, column=i, padx=10)
+            stat_frame.pack_propagate(False)
+            
+            value_label = tk.Label(stat_frame, text=value, font=('Arial', 20, 'bold'), 
+                                  fg='white', bg=color)
+            value_label.pack(expand=True)
+            
+            label_label = tk.Label(stat_frame, text=label, font=('Arial', 10), 
+                                  fg='white', bg=color)
+            label_label.pack()
+        
+        # Mapa simulado
+        map_frame = tk.Frame(dashboard_frame, bg='#c8e6c9', relief='ridge', bd=2)
+        map_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        map_title = tk.Label(map_frame, text="Mapa de Áreas para Restauração", 
+                            font=('Arial', 16, 'bold'), bg='#c8e6c9')
+        map_title.pack(pady=10)
+        
+        # Simulação de mapa com pontos coloridos
+        canvas = tk.Canvas(map_frame, bg='#a5d6a7', width=600, height=300)
+        canvas.pack(pady=10)
+        
+        # Pontos no mapa (simulados)
+        points = [(100, 80), (300, 120), (450, 200), (200, 250), (350, 80)]
+        colors = ['red', 'orange', 'yellow', 'blue', 'red']
+        
+        for (x, y), color in zip(points, colors):
+            canvas.create_oval(x-5, y-5, x+5, y+5, fill=color, outline='black')
+    
+    def create_register_tab(self, notebook):
+        register_frame = ttk.Frame(notebook)
+        notebook.add(register_frame, text="Registrar Local")
+        
+        form_frame = tk.Frame(register_frame, bg='#f0f7e8')
+        form_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        
+        title = tk.Label(form_frame, text="Registrar Nova Área para Restauração", 
+                        font=('Arial', 18, 'bold'), bg='#f0f7e8')
+        title.pack(pady=10)
+        
+        # Campos do formulário
+        fields = [
+            ("Nome do Local:", "entry"),
+            ("Tipo de Área:", "combo", ["Área Urbana", "Corpo Hídrico", "Área de Preservação", "Terreno Privado"]),
+            ("Coordenadas (Lat, Long):", "entry"),
+            ("Descrição do Problema:", "text"),
+            ("Severidade:", "combo", ["Baixa", "Média", "Alta", "Crítica"]),
+            ("Fotos/Evidências:", "file")
+        ]
+        
+        self.form_entries = {}
+        
+        for i, (label, field_type, *options) in enumerate(fields):
+            row_frame = tk.Frame(form_frame, bg='#f0f7e8')
+            row_frame.pack(fill='x', pady=8)
+            
+            lbl = tk.Label(row_frame, text=label, font=('Arial', 11), bg='#f0f7e8', width=20, anchor='w')
+            lbl.pack(side='left')
+            
+            if field_type == "entry":
+                entry = tk.Entry(row_frame, font=('Arial', 11), width=40)
+                entry.pack(side='left', fill='x', expand=True)
+                self.form_entries[label] = entry
+            elif field_type == "combo":
+                combo = ttk.Combobox(row_frame, values=options[0], font=('Arial', 11), width=37)
+                combo.pack(side='left', fill='x', expand=True)
+                combo.set(options[0][0])
+                self.form_entries[label] = combo
+            elif field_type == "text":
+                text = scrolledtext.ScrolledText(row_frame, height=4, font=('Arial', 11), width=40)
+                text.pack(side='left', fill='x', expand=True)
+                self.form_entries[label] = text
+            elif field_type == "file":
+                file_frame = tk.Frame(row_frame, bg='#f0f7e8')
+                file_frame.pack(side='left', fill='x', expand=True)
+                
+                entry = tk.Entry(file_frame, font=('Arial', 11), width=30)
+                entry.pack(side='left', fill='x', expand=True)
+                
+                browse_btn = tk.Button(file_frame, text="Procurar", font=('Arial', 10),
+                                      command=lambda: self.browse_file(entry))
+                browse_btn.pack(side='left', padx=5)
+                
+                self.form_entries[label] = entry
+        
+        # Botões
+        button_frame = tk.Frame(form_frame, bg='#f0f7e8')
+        button_frame.pack(pady=20)
+        
+        submit_btn = tk.Button(button_frame, text="Registrar Local", font=('Arial', 12, 'bold'),
+                              bg='#4caf50', fg='white', padx=20, pady=10,
+                              command=self.submit_location)
+        submit_btn.pack(side='left', padx=10)
+        
+        clear_btn = tk.Button(button_frame, text="Limpar Formulário", font=('Arial', 12),
+                             bg='#f44336', fg='white', padx=20, pady=10,
+                             command=self.clear_form)
+        clear_btn.pack(side='left', padx=10)
+    
+    def create_locations_tab(self, notebook):
+        locations_frame = ttk.Frame(notebook)
+        notebook.add(locations_frame, text="Locais Registrados")
+        
+        # Barra de pesquisa e filtros
+        search_frame = tk.Frame(locations_frame, bg='#f0f7e8')
+        search_frame.pack(fill='x', padx=10, pady=10)
+        
+        search_label = tk.Label(search_frame, text="Pesquisar:", font=('Arial', 11), bg='#f0f7e8')
+        search_label.pack(side='left', padx=5)
+        
+        search_entry = tk.Entry(search_frame, font=('Arial', 11), width=30)
+        search_entry.pack(side='left', padx=5)
+        
+        search_btn = tk.Button(search_frame, text="Buscar", font=('Arial', 10),
+                              command=lambda: self.search_locations(search_entry.get()))
+        search_btn.pack(side='left', padx=5)
+        
+        filter_label = tk.Label(search_frame, text="Filtrar por:", font=('Arial', 11), bg='#f0f7e8')
+        filter_label.pack(side='left', padx=(20, 5))
+        
+        filter_combo = ttk.Combobox(search_frame, values=["Todos", "Área Urbana", "Corpo Hídrico", "Área de Preservação"], width=15)
+        filter_combo.pack(side='left', padx=5)
+        filter_combo.set("Todos")
+        
+        # Tabela de locais
+        table_frame = tk.Frame(locations_frame)
+        table_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # Cabeçalho da tabela
+        columns = ("ID", "Nome", "Tipo", "Status", "Data Registro", "Ações")
+        tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=15)
+        
+        for col in columns:
+            tree.heading(col, text=col)
+            tree.column(col, width=100)
+        
+        tree.column("Nome", width=150)
+        tree.column("Ações", width=100)
+        
+        # Adicionar dados
+        for local in self.locais:
+            tree.insert("", "end", values=(
+                local["id"], local["nome"], local["tipo"], 
+                local["status"], local["data"], "Ver Detalhes"
+            ))
+        
+        # Barra de rolagem
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        tree.pack(side="left", fill="both", expand=True)
+        
+        # Botão de ação
+        action_frame = tk.Frame(locations_frame, bg='#f0f7e8')
+        action_frame.pack(fill='x', padx=10, pady=10)
+        
+        export_btn = tk.Button(action_frame, text="Exportar Relatório", font=('Arial', 11),
+                              bg='#2196f3', fg='white', padx=15, pady=5)
+        export_btn.pack(side='right', padx=5)
+    
+    def create_tutorials_tab(self, notebook):
+        tutorials_frame = ttk.Frame(notebook)
+        notebook.add(tutorials_frame, text="Tutoriais")
+        
+        # Categorias
+        categories_frame = tk.Frame(tutorials_frame, bg='#e8f5e9')
+        categories_frame.pack(fill='x', padx=10, pady=10)
+        
+        categories_label = tk.Label(categories_frame, text="Categorias:", 
+                                   font=('Arial', 12, 'bold'), bg='#e8f5e9')
+        categories_label.pack(side='left', padx=5)
+        
+        categories = ["Todos", "Reflorestamento", "Conservação do Solo", "Recuperação", "Sustentabilidade"]
+        for category in categories:
+            btn = tk.Button(categories_frame, text=category, font=('Arial', 10),
+                           bg='#4caf50', fg='white', padx=10, pady=5,
+                           command=lambda c=category: self.filter_tutorials(c))
+            btn.pack(side='left', padx=5)
+        
+        # Lista de tutoriais
+        tutorials_list_frame = tk.Frame(tutorials_frame)
+        tutorials_list_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # Usando um Text widget com scroll para simular a lista
+        tutorials_text = scrolledtext.ScrolledText(tutorials_list_frame, font=('Arial', 11), width=80, height=20)
+        tutorials_text.pack(fill='both', expand=True)
+        
+        # Adicionar tutoriais
+        tutorials_text.insert('1.0', "TUTORIAIS DE RESTAURAÇÃO AMBIENTAL\n\n")
+        tutorials_text.tag_configure('title', font=('Arial', 12, 'bold'), foreground='#2e7d32')
+        tutorials_text.tag_configure('category', font=('Arial', 10, 'italic'), foreground='#757575')
+        
+        for i, tutorial in enumerate(self.tutoriais):
+            tutorials_text.insert('end', f"{i+1}. {tutorial['titulo']}\n", 'title')
+            tutorials_text.insert('end', f"   Categoria: {tutorial['categoria']}\n\n", 'category')
+            tutorials_text.insert('end', "   Este tutorial fornece instruções detalhadas sobre técnicas e práticas recomendadas para a restauração ambiental.\n\n")
+            tutorials_text.insert('end', "   [CLIQUE AQUI PARA ACESSAR O TUTORIAL COMPLETO]\n\n", 'title')
+            tutorials_text.insert('end', "-" * 80 + "\n\n")
+        
+        tutorials_text.config(state='disabled')
+    
+    def create_ai_assistant_tab(self, notebook):
+        ai_frame = ttk.Frame(notebook)
+        notebook.add(ai_frame, text="Assistente IA")
+        
+        # Cabeçalho
+        ai_header = tk.Frame(ai_frame, bg='#e3f2fd', height=60)
+        ai_header.pack(fill='x', padx=10, pady=10)
+        ai_header.pack_propagate(False)
+        
+        ai_title = tk.Label(ai_header, text="Assistente de Restauração Ambiental IA", 
+                           font=('Arial', 16, 'bold'), bg='#e3f2fd')
+        ai_title.pack(pady=10)
+        
+        ai_subtitle = tk.Label(ai_header, text="Faça perguntas sobre cuidados com plantas e técnicas de restauração", 
+                              font=('Arial', 11), bg='#e3f2fd')
+        ai_subtitle.pack()
+        
+        # Área de conversa
+        conversation_frame = tk.Frame(ai_frame)
+        conversation_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        self.conversation_text = scrolledtext.ScrolledText(
+            conversation_frame, font=('Arial', 11), width=80, height=20, state='disabled'
+        )
+        self.conversation_text.pack(fill='both', expand=True)
+        
+        # Adicionar mensagem inicial
+        self.add_ai_message("Olá! Sou o Assistente IA do Bio Seeker. Posso ajudar com questões sobre:\n\n"
+                           "• Cuidados com plantas e solo\n• Técnicas de reflorestamento\n"
+                           "• Controle de erosão\n• Identificação de problemas ambientais\n\n"
+                           "Como posso ajudá-lo hoje?")
+        
+        # Área de entrada
+        input_frame = tk.Frame(ai_frame, bg='#f0f7e8')
+        input_frame.pack(fill='x', padx=10, pady=10)
+        
+        self.user_input = tk.Entry(input_frame, font=('Arial', 11), width=70)
+        self.user_input.pack(side='left', fill='x', expand=True, padx=5)
+        self.user_input.bind('<Return>', lambda e: self.send_message())
+        
+        send_btn = tk.Button(input_frame, text="Enviar", font=('Arial', 11),
+                            bg='#2196f3', fg='white', padx=15,
+                            command=self.send_message)
+        send_btn.pack(side='left', padx=5)
+        
+        # Sugestões de perguntas
+        suggestions_frame = tk.Frame(ai_frame, bg='#f0f7e8')
+        suggestions_frame.pack(fill='x', padx=10, pady=5)
+        
+        suggestions_label = tk.Label(suggestions_frame, text="Perguntas sugeridas:", 
+                                    font=('Arial', 10), bg='#f0f7e8')
+        suggestions_label.pack(anchor='w')
+        
+        suggestions = [
+            "Como recuperar uma área queimada?",
+            "Quais plantas nativas devo usar no reflorestamento?",
+            "Como controlar a erosão do solo?"
+        ]
+        
+        for suggestion in suggestions:
+            btn = tk.Button(suggestions_frame, text=suggestion, font=('Arial', 9),
+                           bg='#e8f5e9', relief='flat',
+                           command=lambda s=suggestion: self.use_suggestion(s))
+            btn.pack(side='left', padx=5)
+    
+    def add_ai_message(self, message):
+        self.conversation_text.config(state='normal')
+        self.conversation_text.insert('end', "Assistente: ", 'ai_tag')
+        self.conversation_text.insert('end', f"{message}\n\n")
+        self.conversation_text.see('end')
+        self.conversation_text.config(state='disabled')
+    
+    def add_user_message(self, message):
+        self.conversation_text.config(state='normal')
+        self.conversation_text.insert('end', "Você: ", 'user_tag')
+        self.conversation_text.insert('end', f"{message}\n\n")
+        self.conversation_text.see('end')
+        self.conversation_text.config(state='disabled')
+    
+    def send_message(self):
+        user_message = self.user_input.get().strip()
+        if user_message:
+            self.add_user_message(user_message)
+            self.user_input.delete(0, 'end')
+            
+            # Simular processamento da IA
+            self.root.after(1000, self.generate_ai_response, user_message)
+    
+    def use_suggestion(self, suggestion):
+        self.user_input.delete(0, 'end')
+        self.user_input.insert(0, suggestion)
+    
+    def generate_ai_response(self, user_message):
+        # Respostas pré-definidas para simular a IA
+        responses = [
+            "Para essa questão, recomendo consultar os tutoriais disponíveis na aba 'Tutoriais'. Lá você encontrará informações detalhadas sobre técnicas de restauração ambiental.",
+            "O cuidado com plantas varia conforme a espécie e as condições do local. É importante considerar fatores como tipo de solo, incidência solar e disponibilidade de água.",
+            "Para áreas degradadas, sugiro iniciar com a análise do solo e depois selecionar espécies nativas adaptadas às condições locais.",
+            "O controle de erosão pode ser feito através de técnicas como terraceamento, plantio em curvas de nível e uso de cobertura vegetal.",
+            "Recomendo registrar a área no sistema para que nossa equipe possa avaliar e sugerir as melhores práticas de restauração."
+        ]
+        
+        response = random.choice(responses)
+        self.add_ai_message(response)
+    
+    def browse_file(self, entry_widget):
+        # Simular seleção de arquivo
+        filename = f"foto_{random.randint(1, 100)}.jpg"
+        entry_widget.delete(0, 'end')
+        entry_widget.insert(0, filename)
+    
+    def submit_location(self):
+        messagebox.showinfo("Sucesso", "Local registrado com sucesso!\n\nO local foi adicionado ao nosso banco de dados e será avaliado pela nossa equipe.")
+        self.clear_form()
+    
+    def clear_form(self):
+        for widget in self.form_entries.values():
+            if isinstance(widget, tk.Entry):
+                widget.delete(0, 'end')
+            elif isinstance(widget, ttk.Combobox):
+                widget.set('')
+            elif isinstance(widget, scrolledtext.ScrolledText):
+                widget.delete('1.0', 'end')
+    
+    def search_locations(self, query):
+        messagebox.showinfo("Busca", f"Buscando por: {query}\n\n(Esta funcionalidade seria implementada em uma versão completa)")
+    
+    def filter_tutorials(self, category):
+        messagebox.showinfo("Filtro", f"Filtrando tutoriais por: {category}\n\n(Esta funcionalidade seria implementada em uma versão completa)")
+
+def main():
+    root = tk.Tk()
+    app = BioSeekerApp(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
